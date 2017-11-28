@@ -18,13 +18,17 @@ def get_repo_details(repo_github_name):
 def fillin_repo_stars(file_content_line):
     find_github_url = re.findall(r'\(https*://github.com/(.*?/.*?)\)', file_content_line, re.I)
     repo_github_name = find_github_url[0] if find_github_url else None
-    is_repo_line_startswith = env.REPO_LINE_STARTSWITH and file_content_line.startswith(env.REPO_LINE_STARTSWITH)
+    is_repo_line_startswith = file_content_line.startswith(env.REPO_LINE_STARTSWITH) \
+        if env.REPO_LINE_STARTSWITH else True
 
     if is_repo_line_startswith and repo_github_name:
         repo_details = get_repo_details(repo_github_name)
 
         if not repo_details:
             raise Exception('Could not get repository details')
+
+        if env.REMOVE_REPO_STAR:
+            file_content_line = env.REMOVE_REPO_STAR(file_content_line)
 
         return env.FILL_REPO_STAR(file_content_line, repo_details)
 
